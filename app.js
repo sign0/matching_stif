@@ -13,7 +13,7 @@ var stif = {};
 
 var stif_error = [];
 for (var i in _stif) {
-	if (_stif[i].fields.codifligne_line_id && _stif[i].fields.reflex_zde_nom && _stif[i].fields.reflex_zde_id) {
+	if (_stif[i].fields.codifligne_line_id && _stif[i].fields.reflex_zde_id) {
 		//stif[_stif[i].fields.codifligne_line_id+"::"+_stif[i].fields.reflex_zde_nom+"::"+_stif[i].fields.reflex_zde_id] = _stif[i];
 		stif[_stif[i].fields.codifligne_line_id+"::"+_stif[i].fields.reflex_zde_id] = _stif[i];
 	} else {
@@ -26,8 +26,6 @@ fs.writeFileSync('./stif_error.json', JSON.stringify(stif_error));
 console.log("[STIF_LOADED]", _stif.length-stif_error.length);
 console.log("[STIF_ERROR]", stif_error.length);
 console.log();
-
-var output = [];
 
 var getRealtimeData = function() {
 	console.log("[START]", "@", moment().format("YYYY-MM-DDTHH:mm:ss"));
@@ -42,7 +40,7 @@ var getRealtimeData = function() {
 			console.log("Error:", error);
 		}
 		if (body) {
-			fs.writeFileSync("./realtime_"+moment().unix()+".json", body);
+			//fs.writeFileSync("./realtime_"+moment().unix()+".json", body);
 			var parsed = JSON.parse(body);
 			var realtime_total = 0;
 			var realtime_error = [];
@@ -64,14 +62,12 @@ var getRealtimeData = function() {
 
 							realtime_total = realtime_total+1;
 
-							/*
 							if (stif[data1[i1].lineRef.value+"::"+id] !== undefined) {
-								console.log(data2[i2].stopPointRef.value, "==>", data1[i1].lineRef.value, id, "==>", data1[i1].lineRef.value+"::"+id, "==>", stif[data1[i1].lineRef.value+"::"+id].length);
+								console.log(data2[i2].stopPointRef.value, "==>", data1[i1].lineRef.value+"::"+id, "==>", JSON.stringify(stif[data1[i1].lineRef.value+"::"+id].fields.gtfs_stop_id), "==>", JSON.stringify(stif[data1[i1].lineRef.value+"::"+id].fields.reflex_zdl_nom), "==>", moment(data2[i2].expectedDepartureTime).format("HH:mm:ss"));
 							} else {
-								console.log(data2[i2].stopPointRef.value, "==>", data1[i1].lineRef.value, id, "==>", data1[i1].lineRef.value+"::"+id, "==>", stif[data1[i1].lineRef.value+"::"+id]);
+								console.log(data2[i2].stopPointRef.value, "==>", data1[i1].lineRef.value+"::"+id, "==>", "???");
 								realtime_error.push(data1[i1]);
 							}
-							*/
 
 							setTimeout(function() {
 								return loop2(i2+1, data2, cb2);
@@ -88,12 +84,11 @@ var getRealtimeData = function() {
 				}
 			};
 			return loop1(0, parsed.siri.serviceDelivery.estimatedTimetableDelivery, function() {
-				fs.writeFileSync("./realtime_error_"+moment().unix()+".json", JSON.stringify(realtime_error));
+				//fs.writeFileSync("./realtime_error_"+moment().unix()+".json", JSON.stringify(realtime_error));
 				console.log("[REALTIME_ERROR]", realtime_error.length+"/"+realtime_total, "==>", ((realtime_error.length/realtime_total)*100)+"%");
-				console.log("[END]", "@", moment().format("YYYY-MM-DDTHH:mm:ss"), "-", output.length, "stations");
+				console.log("[END]", "@", moment().format("YYYY-MM-DDTHH:mm:ss"));
 				console.log();
 				realtime_error = [];
-				output = [];
 				realtime_total = 0;
 			});
 		}
